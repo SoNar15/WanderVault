@@ -19,6 +19,6 @@ app.listen((PORT), () => {
     console.log("Server running at http://localhost:"+PORT);
 });
 
-// mongodb+srv://sohamnarkhedkar:Soham111@cluster0.ko7rb.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+
 
 // console.log(process.env.MONGODB_URI)
