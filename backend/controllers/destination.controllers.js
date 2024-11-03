@@ -73,3 +73,69 @@ export const deleteDestination = async (req, res) => {
     }
 
 };
+
+export const getExperiences = async (req, res) => {
+    
+    const { id } = req.params;
+    try {
+        const destination = await Destination.findById(id);
+        res.status(200).json({ success: true, data: destination.experiences});
+    } catch (error) {
+    console.log("Error in fetching destinations: ", error.message);
+        res.status(404).json({ success: false, message: "Server error"});
+    }
+
+};
+
+export const addExperience = async (req, res) => {
+    const { id } = req.params; // Destination ID from URL
+    const experience = req.body; // Experience data from the request
+
+    // Validate the request data
+    if (!experience.title || !experience.description ) {
+        return res.status(400).json({ success: false, message: "Please provide all experience fields" });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+        return res.status(404).json({ success: false, message: "Invalid Destination Id" });
+    }
+
+    try {
+        // Find the destination by ID and add the new experience
+        const destination = await Destination.findById(id);
+        destination.experiences.push(experience); // Push the new experience into the experiences array
+        const updatedDestination = await destination.save(); // Save the updated destination
+
+        res.status(201).json({ success: true, data: updatedDestination });
+    } catch (error) {
+        console.log("Error in Add Experience: ", error.message);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
+
+export const deleteExperience = async (req, res) => {
+    const { id, expId } = req.params; // Destination ID and Experience ID from URL
+
+    if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(expId)) {
+        return res.status(404).json({ success: false, message: "Invalid IDs" });
+    }
+
+    try {
+        // Find the destination and remove the specific experience by its ID
+        const destination = await Destination.findById(id);
+        
+        if (!destination) {
+            return res.status(404).json({ success: false, message: "Destination not found" });
+        }
+
+        // Remove the experience with the matching experience ID
+        destination.experiences = destination.experiences.filter(exp => exp._id.toString() !== expId);
+
+        const updatedDestination = await destination.save(); // Save the updated destination
+
+        res.status(200).json({ success: true, data: updatedDestination });
+    } catch (error) {
+        console.log("Error in Delete Experience: ", error.message);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
